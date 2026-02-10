@@ -5,7 +5,7 @@ This project cleans and aggregates parking, public transportation, and traffic d
 
 ## Contents
 
-- data/: Raw source datasets from [text](https://opendata.dc.gov/). Not available on git because of file sizes but download links will be included.
+- data/: Raw source datasets from [Open Data DC Website](https://opendata.dc.gov/). Not available on git because of file sizes but download links will be included.
 - cleaned_data/: Cleaned and transformed datasets.
 - notebooks/: Jupyter notebooks for processing and analysis
 
