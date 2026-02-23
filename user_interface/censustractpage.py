@@ -1,0 +1,94 @@
+import streamlit as st
+import pydeck as pdk
+from aggregation import AGGREGATION_METRICS, render_aggregation_legend
+from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view
+
+DEFAULT_PAGE = "Population"
+
+st.set_page_config(page_title="Layering the Curb: Spatial Insights gathered DC Transportation Data", layout="wide")
+
+st.sidebar.header("Map Layers")
+
+selected_layers = map_sidebar("aggregation", default=DEFAULT_PAGE)
+
+st.title("Transportation & Traffic Map (Aggregated Dataset View)")
+
+st.caption("Hover on census tracts to see specific details.")
+
+selected_row = None
+highlight_layer = None
+
+layers = build_layers(selected_layers, type="aggregation")
+if highlight_layer is not None:
+    layers = layers + [highlight_layer]
+
+if selected_row is not None and not selected_row.empty:
+    selected_lon = float(selected_row.iloc[0]["lon"])
+    selected_lat = float(selected_row.iloc[0]["lat"])
+    view_state = pdk.ViewState(
+        latitude=selected_lat,
+        longitude=selected_lon,
+        zoom=14,
+        pitch=0,
+    )
+else:
+    view_state = get_default_view(["Census Tracts"])
+
+tooltip = {"html": "{tooltip_html}"}
+
+deck = pdk.Deck(
+    layers=layers,
+    initial_view_state=view_state,
+    map_style=None,
+    tooltip=tooltip,
+)
+
+col_map, col_legend = st.columns([3, 1], gap="large")
+
+with col_map:
+    st.pydeck_chart(deck, use_container_width=True)
+    st.caption("Scale: zoom in/out to view neighborhood- or block-level detail.")
+
+with col_legend:
+    st.subheader("Selected Metric")
+    for name in selected_layers:
+        st.markdown(
+            f"<span style='display:inline-block;width:12px;height:12px;background:#2362d8;margin-right:8px;border-radius:2px;'></span>{name}",
+            unsafe_allow_html=True,
+        )
+
+    census_gdf = load_geojson(DATASETS["Census Tracts"]["path"])
+    metric_key = selected_layers[0] if selected_layers else DEFAULT_PAGE
+    render_aggregation_legend(census_gdf, metric_key)
+
+    st.markdown("---")
+    st.subheader("How This Metric Was Compiled")
+    metric_explanations = {
+        "Population": "<b>Population:</b> Census tract population from the 2020 Census.",
+        "Population Density": "<b>Population Density:</b> Calculated as population divided by tract area (sq km).",
+        "Bus Stop Count": "<b>Bus Stop Count:</b> Spatial join assigns bus stops to tracts, counts summed per tract.",
+        "Metro Station Count": "<b>Metro Station Count:</b> Spatial join assigns metro stations to tracts, counts summed per tract.",
+        "Average Road Intensity": "<b>Average Road Intensity:</b> Traffic volume (AADT) weighted by road length within each tract, averaged for each tract.",
+        "Vehicle Miles Traveled": "<b>Vehicle Miles Traveled:</b> Sum of AADT × road segment length (in miles) within each tract.",
+        "Maximum Total Parking Count": "<b>Maximum Total Parking Count:</b> Parking segments spatially joined to tracts, counts adjusted for overlap, summed per tract.",
+        "Average Unrestricted Hours of Parking a Week": "<b>Average Unrestricted Hours of Parking:</b> Weighted average of unrestricted hours per week, weighted by parking capacity in each tract."
+    }
+    explanation = metric_explanations.get(metric_key)
+    explanation = explanation + "<br>" if explanation else explanation
+    if explanation is None:
+        explanation = "See <b>notebooks/aggregation.ipynb</b> for full data pipeline and processing steps."
+    st.markdown(explanation + "<br><small>See the github link above for full data pipeline and processing steps</small>", unsafe_allow_html=True)
+
+with st.expander("Dataset details"):
+    census_gdf = load_geojson(DATASETS["Census Tracts"]["path"])
+    st.write("**Census Tracts**")
+    st.write(f"Features: {len(census_gdf):,}")
+    preview = census_gdf.drop(columns="geometry", errors="ignore").head()
+    st.dataframe(preview)
+
+    metric_key = selected_layers[0] if selected_layers else DEFAULT_PAGE
+    metric_info = AGGREGATION_METRICS.get(metric_key)
+    if metric_info:
+        st.write(f"**Selected metric:** {metric_info.get('label', metric_key)}")
+
+
