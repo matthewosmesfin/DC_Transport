@@ -1,0 +1,5 @@
+[theme]
+primaryColor = "#1f77b4"      # Your primary color (e.g., blue)
+secondaryBackgroundColor = "#f0f2f6"  # Your secondary color (e.g., light gray)
+backgroundColor = "#ffffff"   # Main background color
+textColor = "#262730"         # Main text color

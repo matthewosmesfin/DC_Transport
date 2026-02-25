@@ -42,7 +42,6 @@ deck = pdk.Deck(
     map_style=None,
     tooltip=tooltip,
 )
-
 col_map, col_legend = st.columns([3, 1], gap="large")
 
 with col_map:
@@ -64,14 +63,14 @@ with col_legend:
     st.markdown("---")
     st.subheader("How This Metric Was Compiled")
     metric_explanations = {
-        "Population": "<b>Population:</b> Census tract population from the 2020 Census.",
-        "Population Density": "<b>Population Density:</b> Calculated as population divided by tract area (sq km).",
-        "Bus Stop Count": "<b>Bus Stop Count:</b> Spatial join assigns bus stops to tracts, counts summed per tract.",
-        "Metro Station Count": "<b>Metro Station Count:</b> Spatial join assigns metro stations to tracts, counts summed per tract.",
-        "Average Road Intensity": "<b>Average Road Intensity:</b> Traffic volume (AADT) weighted by road length within each tract, averaged for each tract.",
-        "Vehicle Miles Traveled": "<b>Vehicle Miles Traveled:</b> Sum of AADT × road segment length (in miles) within each tract.",
-        "Maximum Total Parking Count": "<b>Maximum Total Parking Count:</b> Parking segments spatially joined to tracts, counts adjusted for overlap, summed per tract.",
-        "Average Unrestricted Hours of Parking a Week": "<b>Average Unrestricted Hours of Parking:</b> Weighted average of unrestricted hours per week, weighted by parking capacity in each tract."
+        "Population": "<b>Population:</b> Census tract population from the 2020 Census. <i>(Unit: persons)</i>",
+        "Population Density": "<b>Population Density:</b> Calculated as population divided by tract area. <i>(Unit: persons/km²)</i>",
+        "Bus Stop Count": "<b>Bus Stop Count:</b> Spatial join assigns bus stops to tracts, counts summed per tract. <i>(Unit: stops)</i>",
+        "Metro Station Count": "<b>Metro Station Count:</b> Spatial join assigns metro stations to tracts, counts summed per tract. <i>(Unit: stations)</i>",
+        "Average Road Intensity": "<b>Average Road Intensity:</b> Traffic volume (AADT) weighted by road length within each tract, averaged for each tract. <i>(Unit: vehicles/day)</i>",
+        "Vehicle Miles Traveled": "<b>Vehicle Miles Traveled:</b> Sum of AADT × road segment length (in miles) within each tract. <i>(Unit: vehicle-miles/day)</i>",
+        "Maximum Total Parking Count": "<b>Maximum Total Parking Count:</b> Parking segments spatially joined to tracts, counts adjusted for overlap, summed per tract. <i>(Unit: spaces)</i>",
+        "Average Unrestricted Hours of Parking a Week": "<b>Average Unrestricted Hours of Parking:</b> Weighted average of unrestricted hours per week, weighted by parking capacity in each tract. <i>(Unit: hours/week)</i>"
     }
     explanation = metric_explanations.get(metric_key)
     explanation = explanation + "<br>" if explanation else explanation
