@@ -9,7 +9,7 @@ if __name__ == "__main__":
             LAYERING THE CURB:<br>PROJECT OVERVIEW
         </h1>
         <p style='text-align: center; font-size: 1.5em; color: gray; margin-bottom: 2em;'>
-            <i>A Project by Matthew Mesfin</i>
+            <i>A Project by Matthewos Mesfin</i>
         </p>
         """,
         unsafe_allow_html=True
