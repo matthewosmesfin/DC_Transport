@@ -102,6 +102,24 @@ AGGREGATION_METRICS: dict[str, dict[str, object]] = {
 			[180, 30, 120, 240],
 		],
 	},
+	"Most Common Parking Restriction": {
+		"columns": ["MOST_COMMON_PARKING_RESTRICTION"],
+		"label": "Most Common Parking Restriction",
+		"format": "{value}",
+		"color_stops": [
+			[200, 200, 200, 140],
+		],
+	},
+}
+
+RESTRICTION_COLORS = {
+    "No Parking": [255, 140, 0, 180],                # Orange
+    "No Standing": [0, 120, 255, 180],               # Blue
+    "Resident Only Parking": [60, 60, 60, 200],      # Dark grey
+    "Resident Permit Parking": [200, 200, 200, 140], # Light grey
+    "Sweeping": [180, 140, 255, 180],                # Light purple
+    "Timed": [255, 255, 0, 180],                     # Yellow
+    "N/A": [200, 0, 0, 180],                         # Red for N/A
 }
 
 
@@ -136,54 +154,76 @@ def _rgba_to_hex(color: list[int]) -> str:
 
 
 def prepare_aggregation_polygons(
-	gdf: gpd.GeoDataFrame,
-	metric_key: str,
+    gdf: gpd.GeoDataFrame,
+    metric_key: str,
 ) -> gpd.GeoDataFrame:
-	gdf = gdf[gdf.geometry.notnull()]
-	gdf = gdf[~gdf.geometry.is_empty]
-	if gdf.empty:
-		return gdf
+    gdf = gdf[gdf.geometry.notnull()]
+    gdf = gdf[~gdf.geometry.is_empty]
+    if gdf.empty:
+        return gdf
+	
+    print("GeoDataFrame columns:", gdf.columns)  # <-- Add here
 
-	metric = AGGREGATION_METRICS.get(metric_key, {})
-	columns = metric.get("columns", [])
-	metric_col = _resolve_metric_column(gdf, columns) if columns else None
+    metric = AGGREGATION_METRICS.get(metric_key, {})
+    columns = metric.get("columns", [])
+    metric_col = _resolve_metric_column(gdf, columns) if columns else None
 
-	if metric_col is None:
-		gdf = gdf.assign(metric_val=0, metric_norm=0, fill_color=[200, 200, 200, 140])
-		gdf = gdf.assign(tooltip_html=f"<b>{metric_key}</b>: N/A")
-		return gdf
+    print(f"\n\n\n\n Preparing aggregation polygons for metric: {metric_key}, using column: {metric_col} \n\n\n\n")
 
-	values = pd.to_numeric(gdf[metric_col], errors="coerce").fillna(0)
-	min_val = float(values.min()) if not values.empty else 0.0
-	max_val = float(values.max()) if not values.empty else 0.0
-	denom = (max_val - min_val) if max_val != min_val else 1.0
-	norm = (values - min_val) / denom
+    if metric_key == "Most Common Parking Restriction":
+        print("\n\n\n\n ENTERED MOST COMMON PARKING RESTRICTION \n\n\n\n")
+        restriction_colors = RESTRICTION_COLORS
+        if metric_col and metric_col in gdf.columns:
+            gdf = gdf.copy()
+            mapped_colors = gdf[metric_col].map(restriction_colors)
+            gdf["fill_color"] = mapped_colors.apply(
+				lambda x: x if isinstance(x, list) else [150, 150, 150, 140]
+			)
+            gdf["tooltip_html"] = gdf[metric_col].apply(lambda v: f"<b>{metric_key}</b>: {v}")
+        else:
+            gdf = gdf.assign(
+                fill_color=[150, 150, 150, 140],
+                tooltip_html=f"<b>{metric_key}</b>: N/A"
+            )
+        return gdf
 
-	color_stops = metric.get(
-		"color_stops",
-		[
-			[215, 231, 255, 200],
-			[156, 195, 255, 220],
-			[84, 144, 255, 230],
-			[35, 98, 216, 235],
-			[20, 58, 140, 240],
-		],
-	)
+    if metric_col is None:
+        gdf = gdf.assign(metric_val=0, metric_norm=0, fill_color=[200, 200, 200, 140])
+        gdf = gdf.assign(tooltip_html=f"<b>{metric_key}</b>: N/A")
+        return gdf
 
-	label = metric.get("label", metric_key)
-	value_format = metric.get("format", "{value:,.2f}")
-	tooltip = values.apply(lambda v: f"<b>{label}</b>: " + value_format.format(value=v))
+    values = pd.to_numeric(gdf[metric_col], errors="coerce").fillna(0)
+    min_val = float(values.min()) if not values.empty else 0.0
+    max_val = float(values.max()) if not values.empty else 0.0
+    denom = (max_val - min_val) if max_val != min_val else 1.0
+    norm = (values - min_val) / denom
 
-	gdf = gdf.assign(
-		metric_val=values,
-		metric_norm=norm,
-		fill_color=norm.apply(lambda n: _interpolate_color(color_stops, float(n))),
-		tooltip_html=tooltip,
-	)
-	return gdf
+    color_stops = metric.get(
+        "color_stops",
+        [
+            [215, 231, 255, 200],
+            [156, 195, 255, 220],
+            [84, 144, 255, 230],
+            [35, 98, 216, 235],
+            [20, 58, 140, 240],
+        ],
+    )
+
+    label = metric.get("label", metric_key)
+    value_format = metric.get("format", "{value:,.2f}")
+    tooltip = values.apply(lambda v: f"<b>{label}</b>: " + value_format.format(value=v))
+
+    gdf = gdf.assign(
+        metric_val=values,
+        metric_norm=norm,
+        fill_color=norm.apply(lambda n: _interpolate_color(color_stops, float(n))),
+        tooltip_html=tooltip,
+    )
+    return gdf
 
 
 def build_aggregation_layer(gdf: gpd.GeoDataFrame, metric_key: str) -> pdk.Layer:
+	
 	polygons = prepare_aggregation_polygons(gdf, metric_key)
 	return pdk.Layer(
 		"GeoJsonLayer",
@@ -194,8 +234,8 @@ def build_aggregation_layer(gdf: gpd.GeoDataFrame, metric_key: str) -> pdk.Layer
 		stroked=True,
 		filled=True,
 		get_fill_color="fill_color",
-		get_line_color=[255, 255, 255, 80],
-		line_width_min_pixels=1,
+		get_line_color=[0, 0, 0, 230],  # <-- Black border
+        line_width_min_pixels=0.75,        # <-- Thin line
 		opacity=0.9,
 	)
 
@@ -210,6 +250,35 @@ def render_aggregation_legend(gdf: gpd.GeoDataFrame, metric_key: str) -> None:
 	if not metric_col:
 		st.subheader(label)
 		st.caption("No matching field found in dataset.")
+		return
+
+	# Special case for categorical legend
+	if metric_key == "Most Common Parking Restriction":
+		st.subheader(label)
+		st.markdown("**Legend:**")
+		unique_restrictions = gdf[metric_col].dropna().unique()
+		for restriction in unique_restrictions:
+			color = RESTRICTION_COLORS.get(restriction, [150, 150, 150, 140])
+			hex_color = _rgba_to_hex(color)
+			st.markdown(
+				f'<div style="display:flex;align-items:center;margin-bottom:4px;">'
+				f'<div style="width:18px;height:18px;background:{hex_color};border-radius:3px;display:inline-block;margin-right:8px;border:1px solid #888;"></div>'
+				f'<span style="font-size:14px;">{restriction}</span>'
+				f'</div>',
+				unsafe_allow_html=True,
+			)
+		# Add legend for any restriction types not present in the data but in RESTRICTION_COLORS
+		missing_restrictions = set(RESTRICTION_COLORS.keys()) - set(unique_restrictions)
+		for restriction in missing_restrictions:
+			color = RESTRICTION_COLORS[restriction]
+			hex_color = _rgba_to_hex(color)
+			st.markdown(
+				f'<div style="display:flex;align-items:center;margin-bottom:4px;opacity:0.4;">'
+				f'<div style="width:18px;height:18px;background:{hex_color};border-radius:3px;display:inline-block;margin-right:8px;border:1px solid #888;"></div>'
+				f'<span style="font-size:14px;">{restriction}</span>'
+				f'</div>',
+				unsafe_allow_html=True,
+			)
 		return
 
 	values = pd.to_numeric(gdf[metric_col], errors="coerce").dropna()

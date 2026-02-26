@@ -48,6 +48,27 @@ with col_map:
     st.pydeck_chart(deck, use_container_width=True)
     st.caption("Scale: zoom in/out to view neighborhood- or block-level detail.")
 
+    st.markdown("---")
+    st.subheader("How This Metric Was Compiled")
+    metric_explanations = {
+        "Population": "<b>Population:</b> Census tract population from the 2020 Census. <i>(Unit: persons)</i>",
+        "Population Density": "<b>Population Density:</b> Calculated as population divided by tract area. <i>(Unit: persons/km²)</i>",
+        "Bus Stop Count": "<b>Bus Stop Count:</b> Spatial join assigns bus stops to tracts, counts summed per tract. <i>(Unit: stops)</i>",
+        "Metro Station Count": "<b>Metro Station Count:</b> Spatial join assigns metro stations to tracts, counts summed per tract. <i>(Unit: stations)</i>",
+        "Average Road Intensity": "<b>Average Road Intensity:</b> Traffic volume (AADT) weighted by road length within each tract, averaged for each tract. <i>(Unit: vehicles/day)</i>",
+        "Vehicle Miles Traveled": "<b>Vehicle Miles Traveled:</b> Sum of AADT × road segment length (in miles) within each tract. <i>(Unit: vehicle-miles/day)</i>",
+        "Maximum Total Parking Count": "<b>Maximum Total Parking Count:</b> Parking segments spatially joined to tracts, counts adjusted for overlap, summed per tract. <i>(Unit: spaces)</i>",
+        "Average Unrestricted Hours of Parking a Week": "<b>Average Unrestricted Hours of Parking:</b> Weighted average of unrestricted hours per week, weighted by parking capacity in each tract. <i>(Unit: hours/week)</i>",
+        "Most Common Parking Restriction": "<b>Most Common Parking Restriction Type:</b> The most frequently occurring parking restriction type in each tract. <i>(Unit: restriction type)</i>"
+    }
+    metric_key = selected_layers[0] if selected_layers else DEFAULT_PAGE
+    explanation = metric_explanations.get(metric_key)
+    if explanation is None:
+        explanation = "See <b>notebooks/aggregation.ipynb</b> for full data pipeline and processing steps."
+    else:
+        explanation = explanation + "<br>"
+    st.markdown(explanation + "<br><small>See the github link above for full data pipeline and processing steps</small>", unsafe_allow_html=True)
+
 with col_legend:
     st.subheader("Selected Metric")
     for name in selected_layers:
@@ -59,24 +80,6 @@ with col_legend:
     census_gdf = load_geojson(DATASETS["Census Tracts"]["path"])
     metric_key = selected_layers[0] if selected_layers else DEFAULT_PAGE
     render_aggregation_legend(census_gdf, metric_key)
-
-    st.markdown("---")
-    st.subheader("How This Metric Was Compiled")
-    metric_explanations = {
-        "Population": "<b>Population:</b> Census tract population from the 2020 Census. <i>(Unit: persons)</i>",
-        "Population Density": "<b>Population Density:</b> Calculated as population divided by tract area. <i>(Unit: persons/km²)</i>",
-        "Bus Stop Count": "<b>Bus Stop Count:</b> Spatial join assigns bus stops to tracts, counts summed per tract. <i>(Unit: stops)</i>",
-        "Metro Station Count": "<b>Metro Station Count:</b> Spatial join assigns metro stations to tracts, counts summed per tract. <i>(Unit: stations)</i>",
-        "Average Road Intensity": "<b>Average Road Intensity:</b> Traffic volume (AADT) weighted by road length within each tract, averaged for each tract. <i>(Unit: vehicles/day)</i>",
-        "Vehicle Miles Traveled": "<b>Vehicle Miles Traveled:</b> Sum of AADT × road segment length (in miles) within each tract. <i>(Unit: vehicle-miles/day)</i>",
-        "Maximum Total Parking Count": "<b>Maximum Total Parking Count:</b> Parking segments spatially joined to tracts, counts adjusted for overlap, summed per tract. <i>(Unit: spaces)</i>",
-        "Average Unrestricted Hours of Parking a Week": "<b>Average Unrestricted Hours of Parking:</b> Weighted average of unrestricted hours per week, weighted by parking capacity in each tract. <i>(Unit: hours/week)</i>"
-    }
-    explanation = metric_explanations.get(metric_key)
-    explanation = explanation + "<br>" if explanation else explanation
-    if explanation is None:
-        explanation = "See <b>notebooks/aggregation.ipynb</b> for full data pipeline and processing steps."
-    st.markdown(explanation + "<br><small>See the github link above for full data pipeline and processing steps</small>", unsafe_allow_html=True)
 
 with st.expander("Dataset details"):
     census_gdf = load_geojson(DATASETS["Census Tracts"]["path"])

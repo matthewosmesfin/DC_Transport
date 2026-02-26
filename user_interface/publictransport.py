@@ -33,7 +33,7 @@ def prepare_public_transportation_points(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFr
 
     gdf = gdf.assign(
         radius=gdf.apply(
-            lambda row: 30 + min(row["lines_count"], 6) * 8
+            lambda row: 60 + min(row["lines_count"], 6) * 12
             if row["mode"] == "METRO STATION"
             else 10,
             axis=1,

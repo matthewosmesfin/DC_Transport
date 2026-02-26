@@ -41,7 +41,7 @@ DATASETS = {
     
 }
 
-AGGREGATION_DATASETS = ["Population", "Population Density", "Bus Stop Count", "Metro Station Count", "Average Road Intensity", "Vehicle Miles Traveled", "Maximum Total Parking Count", "Average Unrestricted Hours of Parking a Week"]
+AGGREGATION_DATASETS = ["Population", "Population Density", "Bus Stop Count", "Metro Station Count", "Average Road Intensity", "Vehicle Miles Traveled", "Maximum Total Parking Count", "Average Unrestricted Hours of Parking a Week", "Most Common Parking Restriction"]
 
 def load_geojson(path: Path) -> gpd.GeoDataFrame:
     gdf = gpd.read_file(path)
@@ -129,7 +129,7 @@ def page_selector():
             st.switch_page("pages/census_aggregated.py")
     with col2:
         if st.button("Fine Grained View"):
-            st.switch_page("pages/finge_grained.py")
+            st.switch_page("pages/fine_grained.py")
     with col3:
         if st.button("About Page"):
             st.switch_page("pages/about.py")
