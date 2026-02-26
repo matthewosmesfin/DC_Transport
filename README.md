@@ -28,11 +28,11 @@ To run the application, call `streamlit run user_interface/main.py` in the root 
 
 ## Outputs
 
-Streamlit application that can be run locally, or found [here](https://dc-transport-analysis.streamlit.app)
+Streamlit application that can be run locally, or found [here](https://dc-transport-analysis.streamlit.app).
 
 ## Notes
 
 - All spatial operations use EPSG:3857 for consistent distance calculations.
 - Road and parking segments are clipped to the DC boundary before length-based allocation across tracts.
-- Parking Zone data required certain liberties and assumptions during processing. In cases where fields were missing or ambiguous, additional calculations and estimations were performed to derive necessary attributes for analysis.
+- Parking data required certain liberties and assumptions during processing. In cases where fields were missing or ambiguous, additional calculations and estimations were performed to derive necessary attributes for analysis.
 
