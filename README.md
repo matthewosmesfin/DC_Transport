@@ -3,17 +3,21 @@
 
 This project cleans and aggregates parking, public transportation, and traffic data for Washington, DC. The analysis aligns all sources to census tracts and produces tract-level metrics for exploration and visualization.
 
+**Live Application:**  
+https://dc-transport-analysis.streamlit.app
+
 ## Contents
 
-- data/: Raw source datasets from [Open Data DC Website](https://opendata.dc.gov/). Not available on git because of file sizes but download links will be included.
+- data/: Raw source datasets from [Open Data DC Website](https://opendata.dc.gov/). Not available on git because of file sizes but download links are found on the deployed application about page.
 - cleaned_data/: Cleaned and transformed datasets.
 - notebooks/: Jupyter notebooks for processing and analysis
+- user_interface/: Streamlit application that displays the processed and transformed spatial data.
 
 ## Getting Started
 
-1. Create and activate a Python virtual environment.
-2. Install dependencies (geopandas, pandas, numpy, matplotlib, and related geo libraries).
-3. Open the notebooks in notebooks/ and run them top to bottom.
+To set up the project environment, activate the <b>myenv</b> enviroment. Download the necessary data from [Open Data DC Website](https://opendata.dc.gov/) and add to data folder. Run the jupyer notebooks in the `notebooks` folder (making sure to run aggregation.ipynb last).
+
+To run the application, call `streamlit run user_interface/main.py` in the root folder.
 
 ## Notebooks
 
@@ -24,10 +28,11 @@ This project cleans and aggregates parking, public transportation, and traffic d
 
 ## Outputs
 
-Aggregated tract-level metrics are generated in-memory in the notebooks and can be exported if needed. Cleaned GeoJSON outputs are stored in cleaned_data/.
+A streamlit application
 
 ## Notes
 
 - All spatial operations use EPSG:3857 for consistent distance calculations.
 - Road and parking segments are clipped to the DC boundary before length-based allocation across tracts.
+- Parking Zone data required certain liberties and assumptions during processing. In cases where fields were missing or ambiguous, additional calculations and estimations were performed to derive necessary attributes for analysis.
 
