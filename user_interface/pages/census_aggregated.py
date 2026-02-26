@@ -1,7 +1,8 @@
 import streamlit as st
 import pydeck as pdk
-from aggregation import AGGREGATION_METRICS, render_aggregation_legend
-from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view
+from pathlib import Path
+from aggregation import render_aggregation_legend
+from utils import load_geojson, DATASETS, AGGREGATION_METRICS, build_layers, map_sidebar, get_default_view, dataset_details
 
 # Census Aggregated Page, where we show data aggregated at the census tract level, allowing users to explore broader spatial patterns and relationships across the city.
 DEFAULT_PAGE = "Population"
@@ -78,14 +79,4 @@ with col_legend:
     metric_key = selected_layers[0] if selected_layers else DEFAULT_PAGE
     render_aggregation_legend(census_gdf, metric_key)
 
-with st.expander("Dataset details"):
-    census_gdf = load_geojson(DATASETS["Census Tracts"]["path"])
-    st.write("**Census Tracts**")
-    st.write(f"Features: {len(census_gdf):,}")
-    preview = census_gdf.drop(columns="geometry", errors="ignore").head()
-    st.dataframe(preview)
-
-    metric_key = selected_layers[0] if selected_layers else DEFAULT_PAGE
-    metric_info = AGGREGATION_METRICS.get(metric_key)
-    if metric_info:
-        st.write(f"**Selected metric:** {metric_info.get('label', metric_key)}")
+dataset_details("aggregation", DATASETS, selected_layers=None, selected_row=None)

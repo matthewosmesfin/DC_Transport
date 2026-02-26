@@ -6,7 +6,7 @@ import pydeck as pdk
 from shapely.geometry import box
 from publictransport import prepare_public_transportation_points, build_public_transport_layer, render_public_transport_legend
 from trafficvolume import prepare_traffic_lines, build_traffic_layer, render_traffic_legend
-from aggregation import build_aggregation_layer
+from aggregation import build_aggregation_layer, AGGREGATION_METRICS
 
 #Basics Functions used across the app, such as loading geojson files, building layers, and getting default view settings.
 
@@ -134,3 +134,38 @@ def page_selector():
             st.switch_page("pages/about.py")
     with col4:
         st.link_button("Github", "https://github.com/matthewosmesfin/DC_Transport", width="stretch")
+
+def dataset_details(type, DATASETS, selected_layers, selected_row=None):
+    if type == "single":
+        for name in selected_layers:
+            if name in DATASETS and DATASETS[name]["path"].exists():
+                gdf = load_geojson(DATASETS[name]["path"])
+                st.write(f"**{name}**")
+                st.write(f"Features: {len(gdf):,}")
+                preview = gdf.drop(columns="geometry", errors="ignore")
+                # Always minimize the dataset preview by default
+                with st.expander("Show dataset preview", expanded=False):
+                    st.dataframe(preview, use_container_width=True, hide_index=True)
+            else:
+                st.write(f"**{name}**")
+                st.write("Dataset not found or file missing.")
+
+        # Show details for selected row if present (e.g., from search)
+        if selected_row is not None:
+            st.subheader("Selected Feature Details")
+            st.dataframe(selected_row.drop(columns="geometry", errors="ignore"))
+
+    elif type == "aggregation":
+        # Census Tracts info
+        census_gdf = load_geojson(DATASETS["Census Tracts"]["path"])
+        st.write("**Census Tracts**")
+        st.write(f"Features: {len(census_gdf):,}")
+        preview = census_gdf.drop(columns="geometry", errors="ignore")
+        with st.expander("Show dataset preview", expanded=False):
+            st.dataframe(preview, use_container_width=True, hide_index=True)
+
+        metric_key = selected_layers[0] if selected_layers else None
+        metric_info = AGGREGATION_METRICS.get(metric_key)
+        if metric_info:
+            st.write(f"**Selected metric:** {metric_info.get('label', metric_key)}")
+    return

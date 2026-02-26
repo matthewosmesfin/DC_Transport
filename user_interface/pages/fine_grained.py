@@ -9,7 +9,7 @@ from shapely.geometry import box
 from pathlib import Path
 from publictransport import prepare_public_transportation_points, build_public_transport_layer, render_public_transport_legend
 from trafficvolume import prepare_traffic_lines, build_traffic_layer, render_traffic_legend
-from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view
+from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view, dataset_details
 
 @contextlib.contextmanager
 def suppress_warnings():
@@ -60,9 +60,9 @@ if "Public Transportation" in selected_layers:
                     "ScatterplotLayer",
                     data=selected_row,
                     get_position="[lon, lat]",
-                    get_radius=80,
-                    radius_min_pixels=6,
-                    radius_max_pixels=80,
+                    get_radius="radius",
+                    radius_min_pixels=1,
+                    radius_max_pixels=30,
                     get_fill_color=[255, 255, 0, 220],
                     get_line_color=[255, 255, 255],
                     line_width_min_pixels=2,
@@ -123,15 +123,4 @@ with col_legend:
     if "Public Transportation" in selected_layers:
         render_public_transport_legend()
 
-with st.expander("Dataset details"):
-    for name in selected_layers:
-        gdf = load_geojson(DATASETS[name]["path"])
-        st.write(f"**{name}**")
-        st.write(f"Features: {len(gdf):,}")
-        preview = gdf.drop(columns="geometry", errors="ignore").head()
-        st.dataframe(preview)
-
-if selected_row is not None and not selected_row.empty:
-    st.subheader("Public Transportation Details")
-    st.write("Selected feature details:")
-    st.dataframe(selected_row.drop(columns="geometry", errors="ignore"))
+dataset_details("single", DATASETS, selected_layers, selected_row=selected_row)
