@@ -4,7 +4,6 @@ import pydeck as pdk
 import streamlit as st
 
 # Handles all Traffic Volume display
-
 def prepare_traffic_lines(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf = gdf[gdf.geometry.notnull()]
     gdf = gdf[~gdf.geometry.is_empty]
@@ -83,4 +82,3 @@ def render_traffic_legend(gdf: gpd.GeoDataFrame) -> None:
         unsafe_allow_html=True,
     )
     st.caption(f"AADT range: {min_aadt:,} – {max_aadt:,}")
-

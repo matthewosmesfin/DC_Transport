@@ -1,4 +1,3 @@
-#Basics Functions used across the app, such as loading geojson files, building layers, and getting default view settings.
 import streamlit as st
 
 import geopandas as gpd
@@ -9,8 +8,8 @@ from publictransport import prepare_public_transportation_points, build_public_t
 from trafficvolume import prepare_traffic_lines, build_traffic_layer, render_traffic_legend
 from aggregation import build_aggregation_layer
 
+#Basics Functions used across the app, such as loading geojson files, building layers, and getting default view settings.
 
-# For getting our data sets
 BASE_DIR = Path(__file__).resolve().parents[1]
 
 DATASETS = {

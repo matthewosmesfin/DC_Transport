@@ -2,6 +2,7 @@
 import streamlit as st
 from utils import page_selector
 
+#Main page, where users land when opening the application.
 if __name__ == "__main__":
     st.markdown(
         """

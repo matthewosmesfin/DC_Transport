@@ -11,17 +11,13 @@ from publictransport import prepare_public_transportation_points, build_public_t
 from trafficvolume import prepare_traffic_lines, build_traffic_layer, render_traffic_legend
 from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view
 
-# IMPLEMENT STREAMLIT CACHE FOR DATA LOADING AND PROCESSING, TO SPEED UP INTERACTIONS
-# REMOVE SNOW PAKRING ZONES FROM ORIGINAL IPYNB, AS THEY ARE NOT REAL PARKING ZONES AND ADDING CONFUSION, AND REPLACE WITH OUR CLEANED PARKING ZONES DATASET
-# ALSO ADJUST FUNCTION FOR CALCULATING MAX CARS
-# FIND A WAY TO KEEP completely restricted parking zones in the dataset, but exclude them from the max cars calculation (since they don't actually provide parking) - maybe add a column for "IS_RESTRICTED" or something and use that as a filter in the calculation 
-
 @contextlib.contextmanager
 def suppress_warnings():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         yield
 
+# Fine Grained Page, where we show individual datasets separately, allowing users to explore the specific details and spatial patterns of each dataset without the influence of the others.
 st.set_page_config(page_title="Layering the Curb: Spatial Insights gathered DC Transportation Data", layout="wide")
 
 DEFAULT_PAGE = "Public Transportation"

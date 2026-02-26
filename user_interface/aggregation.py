@@ -309,5 +309,3 @@ def render_aggregation_legend(gdf: gpd.GeoDataFrame, metric_key: str) -> None:
 	st.caption(
 		f"Range: {value_format.format(value=min_val)} – {value_format.format(value=max_val)}"
 	)
-
-

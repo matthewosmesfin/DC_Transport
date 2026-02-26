@@ -3,6 +3,7 @@ import pydeck as pdk
 from aggregation import AGGREGATION_METRICS, render_aggregation_legend
 from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view
 
+# Census Aggregated Page, where we show data aggregated at the census tract level, allowing users to explore broader spatial patterns and relationships across the city.
 DEFAULT_PAGE = "Population"
 
 st.set_page_config(page_title="Layering the Curb: Spatial Insights gathered DC Transportation Data", layout="wide")
@@ -55,7 +56,7 @@ with col_map:
         "Population Density": "<b>Population Density:</b> Calculated as population divided by tract area. <i>(Unit: persons/km²)</i>",
         "Bus Stop Count": "<b>Bus Stop Count:</b> Spatial join assigns bus stops to tracts, counts summed per tract. <i>(Unit: stops)</i>",
         "Metro Station Count": "<b>Metro Station Count:</b> Spatial join assigns metro stations to tracts, counts summed per tract. <i>(Unit: stations)</i>",
-        "Average Road Intensity": "<b>Average Road Intensity:</b> Traffic volume (AADT) weighted by road length within each tract, averaged for each tract. <i>(Unit: vehicles/day)</i>",
+        "Average Road Intensity": "<b>Average Road Intensity:</b> Traffic volume (AADT) weighted by road length within each tract, averaged for each tract. <i>(Unit: vehicles/day per mile of road)</i>",
         "Vehicle Miles Traveled": "<b>Vehicle Miles Traveled:</b> Sum of AADT × road segment length (in miles) within each tract. <i>(Unit: vehicle-miles/day)</i>",
         "Maximum Total Parking Count": "<b>Maximum Total Parking Count:</b> Parking segments spatially joined to tracts, counts adjusted for overlap, summed per tract. <i>(Unit: spaces)</i>",
         "Average Unrestricted Hours of Parking a Week": "<b>Average Unrestricted Hours of Parking:</b> Weighted average of unrestricted hours per week, weighted by parking capacity in each tract. <i>(Unit: hours/week)</i>",
@@ -63,10 +64,6 @@ with col_map:
     }
     metric_key = selected_layers[0] if selected_layers else DEFAULT_PAGE
     explanation = metric_explanations.get(metric_key)
-    if explanation is None:
-        explanation = "See <b>notebooks/aggregation.ipynb</b> for full data pipeline and processing steps."
-    else:
-        explanation = explanation + "<br>"
     st.markdown(explanation + "<br><small>See the github link above for full data pipeline and processing steps</small>", unsafe_allow_html=True)
 
 with col_legend:
@@ -92,5 +89,3 @@ with st.expander("Dataset details"):
     metric_info = AGGREGATION_METRICS.get(metric_key)
     if metric_info:
         st.write(f"**Selected metric:** {metric_info.get('label', metric_key)}")
-
-
