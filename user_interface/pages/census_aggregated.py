@@ -2,7 +2,7 @@ import streamlit as st
 import pydeck as pdk
 from pathlib import Path
 from aggregation import render_aggregation_legend
-from utils import load_geojson, DATASETS, AGGREGATION_METRICS, build_layers, map_sidebar, get_default_view, dataset_details
+from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view, dataset_details
 
 # Census Aggregated Page, where we show data aggregated at the census tract level, allowing users to explore broader spatial patterns and relationships across the city.
 DEFAULT_PAGE = "Population"

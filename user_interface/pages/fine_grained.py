@@ -5,10 +5,8 @@ import pandas as pd
 import contextlib
 import warnings
 import pydeck as pdk
-from shapely.geometry import box
-from pathlib import Path
-from publictransport import prepare_public_transportation_points, build_public_transport_layer, render_public_transport_legend
-from trafficvolume import prepare_traffic_lines, build_traffic_layer, render_traffic_legend
+from publictransport import prepare_public_transportation_points, render_public_transport_legend
+from trafficvolume import render_traffic_legend
 from utils import load_geojson, DATASETS, build_layers, map_sidebar, get_default_view, dataset_details
 
 @contextlib.contextmanager
