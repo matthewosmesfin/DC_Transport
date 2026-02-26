@@ -28,7 +28,7 @@ To run the application, call `streamlit run user_interface/main.py` in the root 
 
 ## Outputs
 
-A streamlit application
+Streamlit application that can be run locally, or found [here](https://dc-transport-analysis.streamlit.app)
 
 ## Notes
 
